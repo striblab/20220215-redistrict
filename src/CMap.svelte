@@ -158,9 +158,6 @@ jq('#map .statereset').on('click', function(){
     center: center,
     zoom: zoom,
   });
-
-  jq("#resultC").css('visibility','hidden');
-  //geocoder.clear();
 });
 
 jq('#map .metroreset').on('click', function(){
@@ -168,9 +165,6 @@ jq('#map .metroreset').on('click', function(){
     center: metrocenter,
     zoom: metrozoom,
   });
-
-  jq("#resultC").css('visibility','hidden');
-  //geocoder.clear();
 });
 
 /********** MAP BEHAVIORS **********/

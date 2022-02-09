@@ -156,9 +156,6 @@ jq('#mapL .statereset').on('click', function(){
     center: center,
     zoom: zoom,
   });
-
-  jq("#resultL").css('visibility','hidden');
-  //geocoder2.clear();
 });
 
 jq('#mapL .metroreset').on('click', function(){
@@ -166,9 +163,6 @@ jq('#mapL .metroreset').on('click', function(){
     center: metrocenter,
     zoom: metrozoom,
   });
-
-  jq("#resultL").css('visibility','hidden');
-  //geocoder2.clear();
 });
 
 
@@ -352,7 +346,6 @@ map2.on('load', function() {
 
 //MAP LAYER TOGGLE
 jq("#legSwitch").change(function() {
-  console.log("checked");
     if(this.checked) {
         map2.setLayoutProperty('leg12', 'visibility', 'none');
         map2.setLayoutProperty('leg12-l', 'visibility', 'none');
