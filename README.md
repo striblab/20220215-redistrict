@@ -1,4 +1,4 @@
-# svelte app
+# Minnesota redistricting maps
 
 This is a project template for [Svelte](https://svelte.dev) apps. It lives at https://github.com/striblab/svelte3-template-webpack and is a fork of https://github.com/sveltejs/template-webpack.
 
