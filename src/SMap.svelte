@@ -7,6 +7,7 @@ import * as jq from 'jquery';
 import * as mapboxgl from 'mapbox-gl';
 import * as MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
 import '@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css';
+import * as turf from '@turf/turf';
 
 let center = [-94.351646, 46.607469];
 let mcenter = [-94.022056, 46.622562];
@@ -44,13 +45,35 @@ const geocoder3 = new MapboxGeocoder({
 
 document.getElementById('geocoder3').appendChild(geocoder3.onAdd(map3));
 
+  var geoPoint;
+  var oldDistrict;
+  var newDistrict;
+
+  function searchWithin(layer, point) {
+    var polygon;
+    console.log(layer);
+    for (var i=0; i < layer.features.length; i++) {
+      polygon = turf.multiPolygon(layer.features[i].geometry.coordinates);
+      var test = turf.booleanPointInPolygon(point, polygon);
+      if (test == true) { return layer.features[i].properties.DISTRICT; }
+    }
+  }
+
   geocoder3.on('result', (event) => {
-    jq("#resultS").css('visibility','visible');
+    if (event.result.center[0] != null) {
+      geoPoint = [event.result.center[0], event.result.center[1]];
+      oldDistrict = searchWithin(sen12, geoPoint);
+      newDistrict = searchWithin(sen22, geoPoint);
+      jq("#resultS .nowD").text(oldDistrict);
+      jq("#resultS .newD").text(newDistrict);
+      jq("#resultS").css('visibility','visible');
+    } else {
+      //NOT FOUND
+    }
   });
   geocoder3.on('clear', (event) => {
     jq("#resultS").css('visibility','hidden');
   });
-
 /********** SPECIAL RESET BUTTON **********/
 class HomeReset {
   onAdd(map){
@@ -389,7 +412,7 @@ jq(document).ready(function() {
 
 <div id="geocoder3" class="geocoder"></div>
 
-<div class="results" id="resultS">That location was within District <span class="nowD">X</span>, and will now be in District <span class="newD">X</span></div>
+<div class="results" id="resultS">That location was within District <span class="nowD">X</span>, and will now be in District <span class="newD">X</span>.</div>
 
 <div class="map" id="mapS">
       <div class="legend">
