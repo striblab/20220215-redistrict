@@ -15,6 +15,7 @@ let metrocenter = [-93.218950, 44.935852]
 let zoom = 5.5;
 let mzoom = 5.2;
 let metrozoom = 9;
+let condition = 'mousemove';
 
 mapboxgl.accessToken = 'pk.eyJ1Ijoic3RhcnRyaWJ1bmUiLCJhIjoiY2sxYjRnNjdqMGtjOTNjcGY1cHJmZDBoMiJ9.St9lE8qlWR5jIjkPYd3Wqw';
 
@@ -26,8 +27,8 @@ const map = new mapboxgl.Map({
   style: 'mapbox://styles/startribune/ck1b7427307bv1dsaq4f8aa5h',
   center: center,
   zoom: zoom,
-  minZoom: 5,
-  maxZoom: 13,
+  minZoom: 5.5,
+  maxZoom: 14,
   maxBounds: [-107.2,40.88,-78.92,51.62],
   scrollZoom: false
 });
@@ -38,7 +39,8 @@ const geocoder = new MapboxGeocoder({
       marker: { color: '#5bbf48' },
       countries: 'us',
       bbox: [-97.24,43.5,-89.48,49.38],
-      placeholder: 'Search for an address...',
+      proxmity: center,
+      placeholder: 'Search for an address or location name...',
       zoom: 10,
       mapboxgl: mapboxgl
     });
@@ -145,6 +147,7 @@ if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(naviga
   map.addControl(new mapboxgl.NavigationControl({ showCompass: false }),'bottom-left');
   map.addControl(toggleControl,'bottom-left');
   map.addControl(toggleControlM,'bottom-left');
+  condition = 'click';
 } else {
   map.addControl(scale);
   map.getCanvas().style.cursor = 'pointer';
@@ -195,11 +198,11 @@ map.on('load', function() {
                     '#d5837c',
                     -20,
                     '#eaa99e',
-                    -10,
+                    -5,
                     '#f3d1c9',
                     -0,
                     '#ccc900',
-                     10,
+                     5,
                     '#DAE1E7',
                      20,
                     '#b0bcc8',
@@ -229,11 +232,7 @@ map.on('load', function() {
                       70,
                       0.70,
                       80,
-                      0.80,
-                      90,
-                      0.90,
-                      100,
-                      1
+                      0.80
                   ]
             }
         }, "settlement-subdivision-label");
@@ -295,7 +294,7 @@ map.on('load', function() {
             'layout': {},
             'type': 'line',
             'paint': {
-              'line-color': '#333333'
+              'line-color': '#534c6b'
             }
         }, "settlement-subdivision-label");
 
@@ -315,7 +314,10 @@ map.on('load', function() {
           closeOnClick: false
           });
           
-          map.on('mousemove', layer, function(e) {
+          var when = "Formerly";
+          if (layer == 'con22') { when = "Now"; }  
+
+          map.on(condition, layer, function(e) {
                 map.getCanvas().style.cursor = 'pointer';
                 var feature = e.features[0];
 
@@ -328,7 +330,7 @@ map.on('load', function() {
                 }
 
                 popup.setLngLat(e.lngLat)
-                    .setText("Congressional District " + feature.properties.DISTRICT)
+                    .setText(when + ": Congressional District " + feature.properties.DISTRICT)
                     .addTo(map);
             });
 
@@ -407,7 +409,7 @@ jq(document).ready(function() {
 
 <div id="geocoder" class="geocoder"></div>
 
-<div class="results" id="resultC">That location was within District <span class="nowD">X</span>, and will now be in District <span class="newD">X</span>.</div>
+<div class="results" id="resultC">That location was centered within District <span class="nowD">X</span>, and is now in District <span class="newD">X</span>.</div>
 
 <div class="map" id="map">
       <div class="legend">

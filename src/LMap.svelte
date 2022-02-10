@@ -15,6 +15,7 @@ let metrocenter = [-93.218950, 44.935852]
 let zoom = 5.5;
 let mzoom = 5.2;
 let metrozoom = 9;
+let condition = 'mousemove';
 
 function makeMap() {
 /********** MAKE MAP **********/
@@ -24,8 +25,8 @@ const map2 = new mapboxgl.Map({
   style: 'mapbox://styles/startribune/ck1b7427307bv1dsaq4f8aa5h',
   center: center,
   zoom: zoom,
-  minZoom: 5,
-  maxZoom: 13,
+  minZoom: 5.5,
+  maxZoom: 14,
   maxBounds: [-107.2,40.88,-78.92,51.62],
   scrollZoom: false
 });
@@ -36,7 +37,8 @@ const geocoder2 = new MapboxGeocoder({
       marker: { color: '#5bbf48' },
       countries: 'us',
       bbox: [-97.24,43.5,-89.48,49.38],
-      placeholder: 'Search for an address...',
+      proxmity: center,
+      placeholder: 'Search for an address or location name...',
       zoom: 13,
       mapboxgl: mapboxgl
     });
@@ -143,6 +145,7 @@ if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(naviga
   map2.addControl(new mapboxgl.NavigationControl({ showCompass: false }),'bottom-left');
   map2.addControl(toggleControl,'bottom-left');
   map2.addControl(toggleControlM,'bottom-left');
+  condition = 'click';
 } else {
   map2.addControl(scale);
   map2.getCanvas().style.cursor = 'pointer';
@@ -229,11 +232,7 @@ map2.on('load', function() {
                       70,
                       0.70,
                       80,
-                      0.80,
-                      90,
-                      0.90,
-                      100,
-                      1
+                      0.80
                   ]
             }
         }, "settlement-subdivision-label");
@@ -296,7 +295,7 @@ map2.on('load', function() {
             'type': 'line',
             'paint': {
               'line-width': 0.5,
-              'line-color': '#333333'
+              'line-color': '#534c6b'
             }
         }, "settlement-subdivision-label");
 
@@ -314,7 +313,10 @@ map2.on('load', function() {
           closeOnClick: false
           });
           
-          map2.on('mousemove', layer, function(e) {
+          var when = "Formerly";
+          if (layer == 'leg22') { when = "Now"; }  
+
+          map2.on(condition, layer, function(e) {
                 map2.getCanvas().style.cursor = 'pointer';
                 var feature = e.features[0];
 
@@ -327,7 +329,7 @@ map2.on('load', function() {
                 }
 
                 popup2.setLngLat(e.lngLat)
-                    .setText("MN House District " + feature.properties.DISTRICT)
+                    .setText(when + ": MN House District " + feature.properties.DISTRICT)
                     .addTo(map2);
             });
 
@@ -405,7 +407,7 @@ jq(document).ready(function() {
 
 <div id="geocoder2" class="geocoder"></div>
 
-<div class="results" id="resultL">That location was within District <span class="nowD">X</span>, and will now be in District <span class="newD">X</span>.</div>
+<div class="results" id="resultL">That location was centered within District <span class="nowD">X</span>, and is now in District <span class="newD">X</span>.</div>
 
 <div class="map" id="mapL">
       <div class="legend">
