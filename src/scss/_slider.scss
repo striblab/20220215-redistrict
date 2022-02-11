@@ -21,7 +21,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: #ccc;
+    background-color: #777777;
     -webkit-transition: .4s;
     transition: .4s;
   }
@@ -39,11 +39,11 @@
   }
   
   input:checked + .slider {
-    background-color: #534c6b;
+    background-color: #000000;
   }
   
   input:focus + .slider {
-    box-shadow: 0 0 1px #333333;
+    box-shadow: 0 0 1px #000000;
   }
   
   input:checked + .slider:before {
@@ -61,7 +61,7 @@
   }
 
   .newH {
-    color:#534c6b;
+    color:#000000;
     font-weight:bold;
   }
   .switcher {
@@ -75,8 +75,8 @@
     left: 10px;
     z-index: 1;
     @media only screen and (max-width: 520px) {
-      top: auto;
-      bottom: 8px;
+      top: 8px;
+      //bottom: 8px;
       right:10px;
       left:auto;
     }

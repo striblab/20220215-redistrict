@@ -33,9 +33,11 @@
   "dependencies": {
     "@babel/runtime": "^7.6.3",
     "@babel/runtime-corejs3": "^7.6.3",
+    "@fortawesome/fontawesome-free": "^6.0.0",
     "@mapbox/mapbox-gl-geocoder": "^4.7.4",
     "@turf/turf": "^6.5.0",
     "d3": "^7.2.1",
+    "fontawesome-free": "^1.0.4",
     "journalize": "^2.2.1",
     "jquery": "^3.6.0",
     "mapbox": "^1.0.0-beta10",

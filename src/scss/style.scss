@@ -36,7 +36,6 @@
     font-weight: normal;
 }
 
-
 // Project specific styles.  Split styles into files per component
 @import 'global';
 @import 'slider';
@@ -44,3 +43,4 @@
 @import 'minimap';
 @import 'map';
 @import 'geocoder';
+@import '@fortawesome/fontawesome-free/scss/fontawesome';

@@ -269,7 +269,7 @@ map3.on('load', function() {
             'type': 'line',
             'paint': {
               'line-width': 0.5,
-              'line-color': '#333333'
+              'line-color': '#555555'
             }
         }, "settlement-subdivision-label");
 
@@ -300,7 +300,7 @@ map3.on('load', function() {
             'type': 'line',
             'paint': {
               'line-width': 0.5,
-              'line-color': '#534c6b'
+              'line-color': '#000000'
             }
         }, "settlement-subdivision-label");
 
@@ -323,7 +323,7 @@ map3.on('load', function() {
           if (layer == 'sen22') { when = "Now"; }  
 
           map3.on(condition, layer, function(e) {
-                map3.getCanvas().style.cursor = 'pointer';
+                map3.getCanvas().style.cursor = 'default';
                 var feature = e.features[0];
 
                 if (e.features.length > 0) {
@@ -407,7 +407,7 @@ jq(document).ready(function() {
 
 <div class="map" id="mapS">
       <div class="switcher">
-      <div class="instructions">districts toggle</div>
+      <div class="instructions">Districts</div>
       <div class="toggle">
         <span class="tlabel">&larr; OLD</span> 
         <label class="switch">
@@ -421,8 +421,8 @@ jq(document).ready(function() {
       <div class="legend">
         <strong>2020 presidential results</strong>
         <div><span>&nbsp;</span><span style="text-align:right;">&larr;</span><span style="text-align:right;">D</span><span>&nbsp;</span><span>R</span><span>&rarr;</span><span>&nbsp;</span></div>
-        <div class="strong"><span style="background-color: #5e758b"></span><span style="background-color: #8697a9"></span><span style="background-color: #DAE1E7"></span><span style="background-color: #ccc900"></span><span style="background-color: #f3d1c9"></span><span style="background-color: #d5837c"></span><span style="background-color: #9b4242"></span></div>
+        <div class="strong"><span style="background-color: #5e758b"></span><span style="background-color: #8697a9"></span><span style="background-color: #DAE1E7"></span><span style="background-color: #ccc900"></span><span style="background-color: #f3d1c9"></span><span style="background-color: #d5837c"></span><span style="background-color: #9b4242"></span> &darr; votes</div>
         <div class="middle"><span style="background-color: #5e758b"></span><span style="background-color: #8697a9"></span><span style="background-color: #DAE1E7"></span><span style="background-color: #ccc900"></span><span style="background-color: #f3d1c9"></span><span style="background-color: #d5837c"></span><span style="background-color: #9b4242"></span></div>
-        <div class="weak"><span style="background-color: #5e758b"></span><span style="background-color: #8697a9"></span><span style="background-color: #DAE1E7"></span><span style="background-color: #ccc900"></span><span style="background-color: #f3d1c9"></span><span style="background-color: #d5837c"></span><span style="background-color: #9b4242"></span> &uarr; votes</div>
+        <div class="weak"><span style="background-color: #5e758b"></span><span style="background-color: #8697a9"></span><span style="background-color: #DAE1E7"></span><span style="background-color: #ccc900"></span><span style="background-color: #f3d1c9"></span><span style="background-color: #d5837c"></span><span style="background-color: #9b4242"></span></div>
       </div>
 </div>

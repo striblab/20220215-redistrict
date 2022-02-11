@@ -211,7 +211,23 @@ div.article-byline-mod {
 	line-height: 12px;
 	margin-top: 12px;
 }
+h3 {
+	text-align:center;
+}
+.notes {
+	font-family: "Benton Sans",Helvetica,Arial,sans-serif;
+	line-height:180%;
+	margin-right:auto;
+	margin-left:auto;
+	max-width:520px;
+}
 .jump {
 	text-align:center;
 	margin:10px;
+}
+.back {
+	font-size:13px !important;
+}
+.back a {
+	text-decoration:underline;
 }
