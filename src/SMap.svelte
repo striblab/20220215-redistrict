@@ -9,31 +9,32 @@ import * as MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
 import '@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css';
 import * as turf from '@turf/turf';
 
-let center = [-94.351646, 46.607469];
-let mcenter = [-94.022056, 46.622562];
-let metrocenter = [-93.218950, 44.935852]
-let zoom = 5.5;
-let mzoom = 5.2;
-let metrozoom = 9;
+/********** MAP CONFIG VARIABLES **********/
+let center = [-94.351646, 46.607469]; //default mobile centerpoint
+let mcenter = [-94.022056, 46.622562]; //default mobile centerpoint
+let metrocenter = [-93.218950, 44.935852]; //default metro area centerpoint
+let zoom = 5.5; //default desktop zoom
+let mzoom = 5.2; //default mobile zoom level
+let metrozoom = 9; //default metro area zoom level
 let condition = 'mousemove';
+var mclick = false;
 
 mapboxgl.accessToken = 'pk.eyJ1Ijoic3RhcnRyaWJ1bmUiLCJhIjoiY2sxYjRnNjdqMGtjOTNjcGY1cHJmZDBoMiJ9.St9lE8qlWR5jIjkPYd3Wqw';
 
 function makeMap() {
-/********** MAKE MAP **********/
-
+/********** INITIALIZE MAP **********/
 const map3 = new mapboxgl.Map({
   container: 'mapS',
   style: 'mapbox://styles/startribune/ck1b7427307bv1dsaq4f8aa5h',
   center: center,
   zoom: zoom,
-  minZoom: 5.5,
+  minZoom: 5.2,
   maxZoom: 13,
   maxBounds: [-107.2,40.88,-78.92,51.62],
   scrollZoom: false
 });
 
-//geocoder
+/********** GEOCODER CONFIGURATION **********/
 const geocoder3 = new MapboxGeocoder({
       accessToken: mapboxgl.accessToken,     
       marker: { color: '#5bbf48' },
@@ -47,6 +48,7 @@ const geocoder3 = new MapboxGeocoder({
 
 document.getElementById('geocoder3').appendChild(geocoder3.onAdd(map3));
 
+/********** GEOCODER DISTRICT LOCATION RETURN **********/
   var geoPoint;
   var oldDistrict;
   var newDistrict;
@@ -76,13 +78,13 @@ document.getElementById('geocoder3').appendChild(geocoder3.onAdd(map3));
   geocoder3.on('clear', (event) => {
     jq("#resultS").css('visibility','hidden');
   });
-/********** SPECIAL RESET BUTTON **********/
+
+/********** SPECIAL STATE AND METRO RESET BUTTONS **********/
 class HomeReset {
   onAdd(map){
     this.map = map;
     this.container = document.createElement('div');
     this.container.className = 'mapboxgl-ctrl my-custom-control mapboxgl-ctrl-group statereset';
-
     const button = this._createButton('mapboxgl-ctrl-icon StateFace monitor_button')
     this.container.appendChild(button);
     return this.container;
@@ -121,7 +123,7 @@ class MetroReset {
   _createButton(className) {
     const el = window.document.createElement('button')
     el.className = className;
-    el.innerHTML = '<img width="15" src="./img/metro.png" alt="mn" />';
+    el.innerHTML = '<i style="font-size:20px" class="fas">&#xf1ad;</i>';
     el.addEventListener('click',(e)=>{
      // e.style.display = 'none'
      // e.stopPropagation()
@@ -131,12 +133,12 @@ class MetroReset {
 }
 const toggleControlM = new MetroReset();
 
+/********** SETUP BASIC MAP CONTROLS FOR DESKTOP AND MOBILE **********/
 var scale = new mapboxgl.ScaleControl({
   maxWidth: 80,
   unit: 'imperial'
   });
 
-// Setup basic map controls
 if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
   map3.dragPan.disable();
   map3.keyboard.disable();
@@ -148,6 +150,7 @@ if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(naviga
   map3.addControl(toggleControl,'bottom-left');
   map3.addControl(toggleControlM,'bottom-left');
   condition = 'click';
+  mclick = true;
 } else {
   map3.addControl(scale);
   map3.getCanvas().style.cursor = 'pointer';
@@ -157,6 +160,9 @@ if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(naviga
 }
 
 jq('#mapS .my-custom-control').on('click', function(){
+  if ((jq("#map").width() < 520)) { 
+    zoom = 5.2;
+  } else { zoom = 5.5; }
   map3.jumpTo({
     center: center,
     zoom: zoom,
@@ -170,8 +176,7 @@ jq('#mapS .metroreset').on('click', function(){
   });
 });
 
-/********** MAP BEHAVIORS **********/
-
+/********** ADD MAP LAYERS **********/
 map3.on('load', function() {
 
       map3.addSource('precincts', {
@@ -305,12 +310,13 @@ map3.on('load', function() {
         map3.setLayoutProperty('sen22', 'visibility', 'none');
         map3.setLayoutProperty('sen22-l', 'visibility', 'none');
 
+/********** TOOLTIP AND HOVER EFFECTS **********/
         let hoveredStateId = null;
 
         function tooltips(layer) {
           const popup3 = new mapboxgl.Popup({
-          closeButton: false,
-          closeOnClick: false
+          closeButton: mclick,
+          closeOnClick: mclick
           });
           
           var when = "Formerly";
@@ -346,7 +352,7 @@ map3.on('load', function() {
     tooltips('sen22');
 });
 
-//MAP LAYER TOGGLE
+/********** MAP LAYER TOGGLES **********/
 jq("#senSwitch").change(function() {
   console.log("checked");
     if(this.checked) {
@@ -366,6 +372,7 @@ jq("#senSwitch").change(function() {
     }
 });
 
+/********** MOBILE ZOOM ADJUSTMENTS **********/
 jq(document).ready(function() {
   if ((jq("#map").width() < 520)) {
       map3.flyTo({
@@ -394,23 +401,23 @@ jq(document).ready(function() {
     });
 </script>
 
-<div class="switcher">
-<div class="instructions">toggle between borders</div>
-<div class="toggle">
-  <span class="tlabel">&larr; OLD</span> 
-  <label class="switch">
-    <input id="senSwitch" type="checkbox">
-    <span class="slider"></span>
-  </label>
-  <span class="tlabel">NEW &rarr;</span>
-</div>
-</div>
-
 <div id="geocoder3" class="geocoder"></div>
 
-<div class="results" id="resultS">That location was centered within District <span class="nowD">X</span>, and is now in District <span class="newD">X</span>.</div>
+<div class="results" id="resultS">That location was centered within District <span class="nowD">X</span>, and is now in <span class="newH">District <span class="newD">X</span></span>.</div>
 
 <div class="map" id="mapS">
+      <div class="switcher">
+      <div class="instructions">districts toggle</div>
+      <div class="toggle">
+        <span class="tlabel">&larr; OLD</span> 
+        <label class="switch">
+          <input id="senSwitch" type="checkbox">
+          <span class="slider"></span>
+        </label>
+        <span class="tlabel">NEW &rarr;</span>
+      </div>
+      </div>
+
       <div class="legend">
         <strong>2020 presidential results</strong>
         <div><span>&nbsp;</span><span style="text-align:right;">&larr;</span><span style="text-align:right;">D</span><span>&nbsp;</span><span>R</span><span>&rarr;</span><span>&nbsp;</span></div>

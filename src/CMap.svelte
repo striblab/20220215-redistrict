@@ -9,31 +9,32 @@ import * as MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
 import '@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css';
 import * as turf from '@turf/turf';
 
-let center = [-94.351646, 46.607469];
-let mcenter = [-94.022056, 46.622562];
-let metrocenter = [-93.218950, 44.935852]
-let zoom = 5.5;
-let mzoom = 5.2;
-let metrozoom = 9;
+/********** MAP CONFIG VARIABLES **********/
+let center = [-94.351646, 46.607469]; //default mobile centerpoint
+let mcenter = [-94.022056, 46.622562]; //default mobile centerpoint
+let metrocenter = [-93.218950, 44.935852]; //default metro area centerpoint
+let zoom = 5.5; //default desktop zoom
+let mzoom = 5.2; //default mobile zoom level
+let metrozoom = 9; //default metro area zoom level
 let condition = 'mousemove';
+var mclick = false;
 
 mapboxgl.accessToken = 'pk.eyJ1Ijoic3RhcnRyaWJ1bmUiLCJhIjoiY2sxYjRnNjdqMGtjOTNjcGY1cHJmZDBoMiJ9.St9lE8qlWR5jIjkPYd3Wqw';
 
 function makeMap() {
-/********** MAKE MAP **********/
-
+/********** INITIALIZE MAP **********/
 const map = new mapboxgl.Map({
   container: 'map',
   style: 'mapbox://styles/startribune/ck1b7427307bv1dsaq4f8aa5h',
   center: center,
   zoom: zoom,
-  minZoom: 5.5,
+  minZoom: 5.2,
   maxZoom: 14,
   maxBounds: [-107.2,40.88,-78.92,51.62],
   scrollZoom: false
 });
 
-//geocoder
+/********** GEOCODER CONFIGURATION **********/
 const geocoder = new MapboxGeocoder({
       accessToken: mapboxgl.accessToken,     
       marker: { color: '#5bbf48' },
@@ -47,6 +48,7 @@ const geocoder = new MapboxGeocoder({
 
 document.getElementById('geocoder').appendChild(geocoder.onAdd(map));
 
+/********** GEOCODER DISTRICT LOCATION RETURN **********/
   var geoPoint;
   var oldDistrict;
   var newDistrict;
@@ -76,13 +78,12 @@ document.getElementById('geocoder').appendChild(geocoder.onAdd(map));
     jq("#resultC").css('visibility','hidden');
   });
 
-/********** SPECIAL RESET BUTTON **********/
+/********** SPECIAL STATE AND METRO RESET BUTTONS **********/
 class HomeReset {
   onAdd(map){
     this.map = map;
     this.container = document.createElement('div');
     this.container.className = 'mapboxgl-ctrl my-custom-control mapboxgl-ctrl-group statereset';
-
     const button = this._createButton('mapboxgl-ctrl-icon StateFace monitor_button')
     this.container.appendChild(button);
     return this.container;
@@ -121,7 +122,7 @@ class MetroReset {
   _createButton(className) {
     const el = window.document.createElement('button')
     el.className = className;
-    el.innerHTML = '<img width="15" src="./img/metro.png" alt="mn" />';
+    el.innerHTML = '<i style="font-size:20px" class="fas">&#xf1ad;</i>';
     el.addEventListener('click',(e)=>{
      // e.style.display = 'none'
      // e.stopPropagation()
@@ -131,23 +132,23 @@ class MetroReset {
 }
 const toggleControlM = new MetroReset();
 
+/********** SETUP BASIC MAP CONTROLS FOR DESKTOP AND MOBILE **********/
 var scale = new mapboxgl.ScaleControl({
   maxWidth: 80,
   unit: 'imperial'
   });
 
-// Setup basic map controls
 if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
   map.dragPan.disable();
   map.keyboard.disable();
   map.dragRotate.disable();
   map.touchZoomRotate.disableRotation();
   map.scrollZoom.disable();
-  jq("#map").css("pointer-events","none");
   map.addControl(new mapboxgl.NavigationControl({ showCompass: false }),'bottom-left');
   map.addControl(toggleControl,'bottom-left');
   map.addControl(toggleControlM,'bottom-left');
   condition = 'click';
+  mclick = true;
 } else {
   map.addControl(scale);
   map.getCanvas().style.cursor = 'pointer';
@@ -157,6 +158,9 @@ if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(naviga
 }
 
 jq('#map .statereset').on('click', function(){
+  if ((jq("#map").width() < 520)) { 
+    zoom = 5.2;
+  } else { zoom = 5.5; }
   map.jumpTo({
     center: center,
     zoom: zoom,
@@ -170,8 +174,7 @@ jq('#map .metroreset').on('click', function(){
   });
 });
 
-/********** MAP BEHAVIORS **********/
-
+/********** ADD MAP LAYERS **********/
 map.on('load', function() {
 
       map.addSource('precincts', {
@@ -305,17 +308,24 @@ map.on('load', function() {
         map.setLayoutProperty('con22', 'visibility', 'none');
         map.setLayoutProperty('con22-l', 'visibility', 'none');
 
-
-        let hoveredStateId = null;
+/********** TOOLTIP AND HOVER EFFECTS **********/
+    let hoveredStateId = null;
 
     function tooltips(layer) {
           const popup = new mapboxgl.Popup({
-          closeButton: false,
-          closeOnClick: false
+          closeButton: mclick,
+          closeOnClick: mclick
           });
           
           var when = "Formerly";
           if (layer == 'con22') { when = "Now"; }  
+
+         // map.on('click', layer, (e) => {
+        //    console.log(e.features[0].geometry.coordinates[0]);
+         //     map.flyTo({
+         //     center: turf.centroid(turf.polygon(e.features[0].geometry.coordinates[0]))
+         //     });
+        //  });
 
           map.on(condition, layer, function(e) {
                 map.getCanvas().style.cursor = 'pointer';
@@ -347,7 +357,7 @@ map.on('load', function() {
     tooltips('con22');
 });
 
-//MAP LAYER TOGGLE
+/********** MAP LAYER TOGGLES **********/
 jq("#conSwitch").change(function() {
   console.log("checked");
     if(this.checked) {
@@ -367,6 +377,7 @@ jq("#conSwitch").change(function() {
     }
 });
 
+/********** MOBILE ZOOM ADJUSTMENTS **********/
 jq(document).ready(function() {
   if ((jq("#map").width() < 520)) {
       map.flyTo({
@@ -395,23 +406,23 @@ jq(document).ready(function() {
     });
 </script>
 
-<div class="switcher">
-<div class="instructions">toggle between borders</div>
-<div class="toggle">
-  <span class="tlabel">&larr; OLD</span> 
-  <label class="switch">
-    <input id="conSwitch" type="checkbox">
-    <span class="slider"></span>
-  </label>
-  <span class="tlabel">NEW &rarr;</span>
-</div>
-</div>
-
 <div id="geocoder" class="geocoder"></div>
 
-<div class="results" id="resultC">That location was centered within District <span class="nowD">X</span>, and is now in District <span class="newD">X</span>.</div>
+<div class="results" id="resultC">That location was centered within District <span class="nowD">X</span>, and is now in <span class="newH">District <span class="newD">X</span></span>.</div>
 
 <div class="map" id="map">
+      <div class="switcher">
+      <div class="instructions">districts toggle</div>
+      <div class="toggle">
+        <span class="tlabel">&larr; OLD</span> 
+        <label class="switch">
+          <input id="conSwitch" type="checkbox">
+          <span class="slider"></span>
+        </label>
+        <span class="tlabel">NEW &rarr;</span>
+      </div>
+      </div>
+
       <div class="legend">
         <strong>2020 presidential results</strong>
         <div><span>&nbsp;</span><span style="text-align:right;">&larr;</span><span style="text-align:right;">D</span><span>&nbsp;</span><span>R</span><span>&rarr;</span><span>&nbsp;</span></div>
