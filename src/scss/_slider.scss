@@ -75,8 +75,8 @@
     left: 10px;
     z-index: 1;
     @media only screen and (max-width: 520px) {
-      top: 8px;
-      //bottom: 8px;
+      bottom: 8px;
+      top:auto;
       right:10px;
       left:auto;
     }

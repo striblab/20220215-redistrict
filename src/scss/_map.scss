@@ -661,7 +661,7 @@ a.mapboxgl-ctrl-logo.mapboxgl-compact{
     margin-left:auto;
 
     @media only screen and (max-width: 520px) {
-		height:500px;
+		height:550px;
 	}
 }
 
@@ -669,7 +669,7 @@ a.mapboxgl-ctrl-logo.mapboxgl-compact{
     display:none !important;
   }
 
-  .legend {
+  .legend, .mlegend {
 	background-color: #fff;
 	border-radius: 3px;
 	bottom: 8px;
@@ -689,12 +689,22 @@ a.mapboxgl-ctrl-logo.mapboxgl-compact{
 	margin: 0 0 10px;
 	}
 	 
-	.legend div span {
+	.legend div span, .mlegend div span {
 	display: inline-block;
 	height: 10px;
 	margin-right: 0;
 	width: 14px;
-	}
+    }
+    
+    .mlegend {
+        display:none;
+        margin-top:6px;
+        @media only screen and (max-width: 520px) {
+            display:block;
+            right:230px;
+            height:44px;
+        }
+    }
 
 	.mapboxgl-popup {
 		max-width: 400px;

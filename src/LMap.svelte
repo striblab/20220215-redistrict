@@ -11,7 +11,7 @@ import * as turf from '@turf/turf';
 
 /********** MAP CONFIG VARIABLES **********/
 let center = [-94.351646, 46.607469]; //default mobile centerpoint
-let mcenter = [-94.022056, 46.622562]; //default mobile centerpoint
+let mcenter = [-93.907810, 45.940497]; //default mobile centerpoint
 let metrocenter = [-93.218950, 44.935852]; //default metro area centerpoint
 let zoom = 5.5; //default desktop zoom
 let mzoom = 5.2; //default mobile zoom level
@@ -356,6 +356,7 @@ map2.on('load', function() {
 /********** MOBILE ZOOM ADJUSTMENTS **********/
 jq(document).ready(function() {
   if ((jq("#map").width() < 520)) {
+      center = mcenter;
       map2.flyTo({
           center: mcenter,
           zoom: mzoom
@@ -363,11 +364,13 @@ jq(document).ready(function() {
   }
   jq(window).resize(function() {
       if ((jq("#map").width() < 520)){
+          center = mcenter;
           map2.flyTo({
               center: mcenter,
               zoom: mzoom
           });
       } else {
+          center = [-94.351646, 46.607469];
           map2.flyTo({
               center: center,
               zoom: zoom
@@ -417,6 +420,11 @@ jq("#legSwitch").change(function() {
         </label>
         <span class="tlabel">NEW &rarr;</span>
       </div>
+      </div>
+
+      <div class="mlegend">
+            <div><span>&nbsp;</span><span style="text-align:right;">&nbsp;</span><span style="text-align:right;">D</span><span>&nbsp;</span><span>R</span><span>&nbsp;</span><span>&nbsp;</span></div>
+            <div class="strong"><span style="background-color: #5e758b"></span><span style="background-color: #8697a9"></span><span style="background-color: #DAE1E7"></span><span style="background-color: #ccc900"></span><span style="background-color: #f3d1c9"></span><span style="background-color: #d5837c"></span><span style="background-color: #9b4242"></span></div>
       </div>
 
       <div class="legend">
