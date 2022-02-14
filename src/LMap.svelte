@@ -58,6 +58,7 @@ document.getElementById('geocoder2').appendChild(geocoder2.onAdd(map2));
       var test = turf.booleanPointInPolygon(point, polygon);
       if (test == true) { return layer.features[i].properties.DISTRICT; }
     }
+    return 'X';
   }
 
   geocoder2.on('result', (event) => {
@@ -65,11 +66,13 @@ document.getElementById('geocoder2').appendChild(geocoder2.onAdd(map2));
       geoPoint = [event.result.center[0], event.result.center[1]];
       oldDistrict = searchWithin(leg12, geoPoint);
       newDistrict = searchWithin(leg22, geoPoint);
-      jq("#resultL .nowD").text(oldDistrict);
-      jq("#resultL .newD").text(newDistrict);
-      jq("#resultL").css('visibility','visible');
-    } else {
-      //NOT FOUND
+      if (oldDistrict != "X") { 
+        jq("#resultL").html('That location was centered within District <span class="nowD">' + oldDistrict + '</span>, and is now in <span class="newH">District <span class="newD">' + newDistrict + '</span></span>.')
+        jq("#resultL").css('visibility','visible');
+      } else {
+        jq("#resultL").html("Location not found within Minnesota's districts.");
+        jq("#resultL").css('visibility','visible');
+      }
     }
   });
   geocoder2.on('clear', (event) => {

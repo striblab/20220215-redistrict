@@ -1,0 +1,31 @@
+
+
+Set up a folder structure like this:
+Main folder
+	-output
+	-shapefiles
+		-C2002 (these are all folders)
+		-C2012
+		-L1994
+		-L2012
+		-S1994
+		-S2012
+
+(obviously the folders that represent the dummy data will be different with next week's data)
+
+The shapefiles should each be in their appropriate folder. The output folder will be empty right now. 
+
+Put the script file in the main folder. 
+
+Open RStudio. 
+
+Go to the file menu and choose "Create Project." Tell it to use an "existing directory" and then navigate to the main folder you created in previous step. It will create a .Rproj file in that directory. 
+
+Then open the precinct_calculations.Rmd script I gave you. 
+
+Today you can just run all the code and it will put the new shapefiles in the output directory. 
+
+On Tuesday:
+1) create the appropriate new folders for the newshapefiles
+2) starting on line 30 of the code, change the path and file names to match the new files
+3) If they used different field names in the new files, there may be a small edit or two needed at the end of the script (see my notes at the top of the script)

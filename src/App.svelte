@@ -21,7 +21,7 @@ import LMap from './LMap.svelte';
 <div class="notes">
 <ul>
 <li>The maps below can display either the previous district borders or the newly redistricted boundaries with the click of a switch.</li>
-<li>The basemap is Minnesota's 2020 presidential election precinct results between Joe Biden and Donald Trump. Precincts with closer results are shaded hues of yellow. All precincts have opacities based on relative population density.</li>
+<li>The basemap is Minnesota's 2020 presidential election precinct results between Joe Biden and Donald Trump. Precincts with closer results are shaded hues of yellow. All precincts have opacities based on relative vote density.</li>
 <li>Searching for an address or location name should report which district its centered within. Note that some geographies like larger cities could be divided between multiple districts, so the results will simply report that municipality's centerpoint.</li>
 </ul>
 </div>

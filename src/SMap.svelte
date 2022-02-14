@@ -61,6 +61,7 @@ document.getElementById('geocoder3').appendChild(geocoder3.onAdd(map3));
       var test = turf.booleanPointInPolygon(point, polygon);
       if (test == true) { return layer.features[i].properties.DISTRICT; }
     }
+    return 'X';
   }
 
   geocoder3.on('result', (event) => {
@@ -68,11 +69,13 @@ document.getElementById('geocoder3').appendChild(geocoder3.onAdd(map3));
       geoPoint = [event.result.center[0], event.result.center[1]];
       oldDistrict = searchWithin(sen12, geoPoint);
       newDistrict = searchWithin(sen22, geoPoint);
-      jq("#resultS .nowD").text(oldDistrict);
-      jq("#resultS .newD").text(newDistrict);
-      jq("#resultS").css('visibility','visible');
-    } else {
-      //NOT FOUND
+      if (oldDistrict != "X") { 
+        jq("#resultS").html('That location was centered within District <span class="nowD">' + oldDistrict + '</span>, and is now in <span class="newH">District <span class="newD">' + newDistrict + '</span></span>.')
+        jq("#resultS").css('visibility','visible');
+      } else {
+        jq("#resultS").html("Location not found within Minnesota's districts.");
+        jq("#resultS").css('visibility','visible');
+      }
     }
   });
   geocoder3.on('clear', (event) => {
@@ -403,7 +406,7 @@ jq(document).ready(function() {
 
 <div id="geocoder3" class="geocoder"></div>
 
-<div class="results" id="resultS">That location was centered within District <span class="nowD">X</span>, and is now in <span class="newH">District <span class="newD">X</span></span>.</div>
+<div class="results" id="resultS">&nbsp;</div>
 
 <div class="map" id="mapS">
       <div class="switcher">

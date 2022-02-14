@@ -1,0 +1,176 @@
+---
+title: "Redistricting: match vote results to shapefiles"
+output: html_notebook
+---
+
+```{r}
+
+ packages <- c("tidyverse", "janitor",  "sf")
+if (length(setdiff(packages, rownames(installed.packages()))) > 0) {
+  install.packages(setdiff(packages, rownames(installed.packages())), repos = "http://cran.us.r-project.org")  
+}
+
+
+library(tidyverse)
+library(janitor)
+library(sf)
+
+
+#the one place you might run into trouble is in the section where you join the vote results with the NEW shapefiles. 
+#for example, the dummy senate shapefile this is based on has the field "SENDIST" to identify the senate district. If that field has a different name in the new file, it will need to be changed in the joining code. The congressional and legislative maps both use plain old "DISTRICT" so hopefully those will hold true, but will need to check. 
+#after importing a shapefile, you can check what field names are by running this code (take the hashtag off the front)
+
+#names(new_cg_sf)
+
+
+
+
+# NEW redistricting files. Adjust names here
+
+new_cg_file  <-  "./shapefiles/C2002/c2002.shp"
+new_cg_sf <- st_read(new_cg_file)
+
+
+new_sen_file  <-  "./shapefiles/S1994/sen94.shp"
+new_sen_sf <- st_read(new_sen_file)
+
+
+new_hs_file  <-  "./shapefiles/L1994/leg94.shp"
+new_hs_sf <- st_read(new_hs_file)
+
+
+
+
+#CURRENT shapefiles
+
+#bring in current congressional district shapefile
+current_cg_file <-  "./shapefiles/C2012/c2012.shp"
+current_cg_sf <- st_read(current_cg_file)
+
+
+
+#bring in current senate district shapefile
+current_sen_file <-  "./shapefiles/S2012/S2012.shp"
+current_sen_sf <- st_read(current_sen_file)
+
+
+#bring in current house district shapefile
+current_hs_file <-  "./shapefiles/L2012/L2012-1.shp"
+current_hs_sf <- st_read(current_hs_file)
+
+
+
+
+
+#last presidential election data by precinct
+#downloadable files are here: https://electionresults.sos.state.mn.us/Select/MediaFiles/Index?ersElectionId=136
+
+
+url <-  'https://electionresultsfiles.sos.state.mn.us/20201103/USPresPct.txt'
+
+prez_precincts <-  read_delim(url, delim=";", col_names=FALSE, col_types=cols(X6="c", X9="c", X10="c")) %>% rename(state=X1, countyid=X2, precinctnum=X3, officeid=X4, officename=X5, district=X6, candidateid=X7, candidatename=X8, suffix=X9, incumbentcode=X10, partyid=X11, precincts_reporting=X12, total_precincts=X13, candidate_votes=X14, pct_votes=X15, total_votes_office=X16)
+
+
+precinct_lkup_url <-  'https://electionresultsfiles.sos.state.mn.us/20201103/PrctTbl.txt'
+
+precinct_lkup <-  read_delim(precinct_lkup_url, delim=";", col_types=cols(.default = "c"), col_names = FALSE) %>%
+  rename(countyid=X1, precinctid=X2, precinct_name=X3, cg=X4, leg=X5, cc_dist = X6, jud_dist=X7, soil_dist=X8, mcd_fips = X9, school_dist = X10)
+
+
+	#County ID
+	#Precinct ID 
+	#Precinct Name
+	#Congressional District 
+	#Legislative District 
+	#County Commissioner District 
+	#Judicial District 
+	#Soil and Water Conservation District 
+	#MCD FIPS code
+	#School District number (not used in statewide elections)
+
+
+#join precinct election results with lkup table to get district codes
+
+#create a senate district number (by stripping from the legislative district number) and collapse the parties into R, D and other
+
+prez_precincts <-  left_join(prez_precincts, precinct_lkup %>% select(countyid, precinctid, cg, leg), by=c("countyid"="countyid", "precinctnum"="precinctid")) %>% mutate(sen_dist = case_when(str_length(leg)==2~ str_sub(leg,1,1),
+                                                                                                                                                                                               str_length(leg)==3 ~ str_sub(leg,1,2)),
+                                                                                                                                                                          new_party = case_when(partyid=='R' ~ 'R',
+                                                                                                                                                                                                partyid=='DFL' ~ 'D',
+                                                                                                                                                                                                TRUE ~ 'other'))
+
+
+
+
+#SUMMARIZE election results to CONGRESSIONAL DISTRICT
+
+cg_votes <- pivot_wider(prez_precincts %>% group_by(cg, new_party) %>% summarise(party_votes = sum(candidate_votes)), names_from="new_party", values_from="party_votes") %>% mutate(total_votes = D+other+R, pct_D = D/total_votes, pct_other= other/total_votes, pct_R = R/total_votes)
+
+
+
+#SUMMARIZE election results to LEGISLATIVE DISTRICT
+leg_votes <- pivot_wider(prez_precincts %>% group_by(leg, new_party) %>% summarise(party_votes = sum(candidate_votes)), names_from="new_party", values_from="party_votes") %>% mutate(total_votes = D+other+R, pct_D = D/total_votes, pct_other= other/total_votes, pct_R = R/total_votes)
+
+
+
+#SUMMARIZE election results to SENATE DISTRICT
+
+sen_votes <- pivot_wider(prez_precincts %>% group_by(sen_dist, new_party) %>% summarise(party_votes = sum(candidate_votes)), names_from="new_party", values_from="party_votes") %>% mutate(total_votes = D+other+R, pct_D = D/total_votes, pct_other= other/total_votes, pct_R = R/total_votes)
+
+
+
+#JOIN cg_votes with CURRENT CONGRESSIONAL SHAPEFILE
+
+
+current_cg_sf <-  left_join(current_cg_sf, cg_votes, by=c("DISTRICT"="cg"))
+
+st_write(current_cg_sf, "./output/current_cg_sf.shp")
+
+
+
+#JOIN leg_votes with CURRENT LEGISLATIVE SHAPEFILE
+
+current_hs_sf <-  left_join(current_hs_sf, leg_votes, by=c("DISTRICT"="leg"))
+
+st_write(current_hs_sf, "./output/current_hs_sf.shp")
+
+
+#JOIN sen_votes with CURRENT SENATE SHAPEFILE
+
+current_sen_sf <-  left_join(current_sen_sf, sen_votes, by=c("DISTRICT"="sen_dist"))
+
+st_write(current_sen_sf, "./output/current_sen_sf.shp")
+
+
+
+#JOIN cg_votes with NEW CONGRESSIONAL SHAPEFILE
+
+
+
+
+new_cg_sf <-  left_join(new_cg_sf, cg_votes, by=c("DISTRICT"="cg"))
+
+st_write(new_cg_sf, "./output/new_cg_sf.shp")
+
+
+
+#JOIN leg_votes with NEW LEGISLATIVE SHAPEFILE
+
+new_hs_sf <-  left_join(new_hs_sf, leg_votes, by=c("DISTRICT"="leg"))
+
+st_write(new_hs_sf, "./output/new_hs_sf.shp")
+
+
+#JOIN sen_votes with NEW SENATE SHAPEFILE
+
+new_sen_sf <-  left_join(new_sen_sf, sen_votes, by=c("SENDIST"="sen_dist"))
+
+st_write(new_sen_sf, "./output/new_sen_sf.shp")
+
+
+
+
+```
+
+
+
