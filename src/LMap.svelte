@@ -141,12 +141,11 @@ var scale = new mapboxgl.ScaleControl({
   });
 
 if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
-  map2.dragPan.disable();
+  //map2.dragPan.disable();
   map2.keyboard.disable();
   map2.dragRotate.disable();
   map2.touchZoomRotate.disableRotation();
   map2.scrollZoom.disable();
-  jq("#map").css("pointer-events","none");
   map2.addControl(new mapboxgl.NavigationControl({ showCompass: false }),'bottom-left');
   map2.addControl(toggleControl,'bottom-left');
   map2.addControl(toggleControlM,'bottom-left');

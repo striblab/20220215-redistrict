@@ -142,7 +142,7 @@ var scale = new mapboxgl.ScaleControl({
   });
 
 if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
-  map.dragPan.disable();
+  //map.dragPan.disable();
   map.keyboard.disable();
   map.dragRotate.disable();
   map.touchZoomRotate.disableRotation();
