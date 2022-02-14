@@ -15,14 +15,14 @@ body {
 	box-sizing: border-box;
 }
 a {
-	color: #036;
+	color: rgb(0,100,200) !important;;
 	text-decoration: none;
 }
 a:hover {
 	text-decoration: underline;
 }
 a:visited {
-	color: rgb(0,80,160);
+	color: rgb(0,100,200) !important;
 }
 h2 {
 	font-size: 1.4em;
@@ -230,4 +230,7 @@ h3 {
 }
 .back a {
 	text-decoration:underline;
+}
+a {
+	color: rgb(0,100,200) !important;
 }

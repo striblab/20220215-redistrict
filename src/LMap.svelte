@@ -355,6 +355,7 @@ map2.on('load', function() {
 
 /********** MOBILE ZOOM ADJUSTMENTS **********/
 jq(document).ready(function() {
+  var cachedWidth = jq(window).width();
   if ((jq("#map").width() < 520)) {
       center = mcenter;
       map2.flyTo({
@@ -363,6 +364,9 @@ jq(document).ready(function() {
       });
   }
   jq(window).resize(function() {
+    var newWidth = jq(window).width();
+    if(newWidth !== cachedWidth){
+      cachedWidth = newWidth;
       if ((jq("#map").width() < 520)){
           center = mcenter;
           map2.flyTo({
@@ -376,6 +380,7 @@ jq(document).ready(function() {
               zoom: zoom
           });
       }
+    }
   });
 });
 
@@ -397,8 +402,6 @@ jq("#legSwitch").change(function() {
         jq("#miniL .current").show();
     }
 });
-
-
 }
 
     onMount(() => {
@@ -425,7 +428,7 @@ jq("#legSwitch").change(function() {
       <div class="mlegend">
             <div><span>&nbsp;</span><span style="text-align:right;">&nbsp;</span><span style="text-align:right;">D</span><span>&nbsp;</span><span>R</span><span>&nbsp;</span><span>&nbsp;</span></div>
             <div class="strong"><span style="background-color: #5e758b"></span><span style="background-color: #8697a9"></span><span style="background-color: #DAE1E7"></span><span style="background-color: #ccc900"></span><span style="background-color: #f3d1c9"></span><span style="background-color: #d5837c"></span><span style="background-color: #9b4242"></span></div>
-      </div>
+        </div>
 
       <div class="legend">
         <strong>2020 presidential results</strong>

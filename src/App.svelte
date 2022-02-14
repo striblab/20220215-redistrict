@@ -5,13 +5,13 @@ import SMap from './SMap.svelte';
 import LMap from './LMap.svelte';
 </script>
 
-<p>Redistricting occurs once every decade following the census count to equally redistribute  the state’s population between legislative and congressional districts. Districts that have seen population growth over the last 10 years will need to shrink geographically, while districts that shed population will need to get bigger in size. In Minnesota, the courts have taken over the process of drawing the state’s maps when divided government couldn’t reach agreement on their own. </p>
+<p>Once every decade, the political boundaries of the state shift and help determine elections for the next 10 years.</p>
 
-<!-- <p>Democrats currently hold control of the U.S. House and Senate and the redistricting process around the country is being closely watched ahead of this fall’s midterm elections. In 2020, Minnesota’s closest House race was in the second Congressional district that stretched from a district southern Twin Cities suburbs and the counties of Goodhue and Wabasha counties lining the Wisconsin border. Democratic Rep. Angie Craig won the district by about 2 percentage points and is already being targeted by the House GOP’s campaign arm as a possible pickup opportunity for the right this year.</p>
+<p>It’s called redistricting, and occurs <a href="
+https://www.startribune.com/minnesota-won-t-lose-eighth-congressional-seat-census-bureau-rules/600050299/">after the census count</a> to equally redistribute the state’s population between legislative and congressional districts. Districts that have seen population growth over the last decade need to shrink, while districts that shed population need to get bigger in size. In Minnesota, the <a href="https://www.startribune.com/courts-hear-arguments-in-redistricting-case-ahead-of-anticipated-release-of-new-state-maps/600132504/
+Change">courts have taken over the process this year</a> — as they have for the last five decades — because the divided Legislature couldn’t strike an agreement on its own.</p>
 
-<p>The 2020 contest was also a close one for the southern Minnesota’s first Congressional seat held by Republican Rep. Jim Hagedorn. While Hagedorn won by around 3 percentage points, the seat could be in play for both Democrats and Republicans in future years.</p> -->
-
-<p>The stakes are high for communities and voters navigating their new district lines, as well as for the state’s political parties, with redrawn boundaries scrambling election dynamics in districts for Congress and the state Legislature for the next decade. Every seat in the Legislature is up for re-election in a redistricting year, meaning control of state government is at stake in the fall election.</p>
+<p>The stakes are high for communities and voters navigating their new district lines, as well as for the state’s political parties, with redrawn boundaries scrambling election dynamics in districts for Congress and the state Legislature. Every legislative seat is up for re-election in a redistricting year, meaning control of state government is at stake in the fall election.</p>
 
 <div class="rule"></div>
 <h3 id="top">Jump to districts</h3>
@@ -28,9 +28,13 @@ import LMap from './LMap.svelte';
 
 <div class="rule"></div>
 <h2 class="chartTitle" id="congress">Congressional boundaries</h2>
-<p>Minnesota’s eight seats in Congress are evenly split between the political parties, with four largely rural and suburban seats held by Republicans and four metro-area seats in Democrats’ hands. The state narrowly hung on to all eight of it’s seats in Congress after the latest population count, but population exploded in some suburban communities and declined in rural areas over the last decade, meaning district boundaries must still shift.</p>
+<p>Minnesota’s eight seats in Congress are evenly split between the political parties, with four largely rural and exurban seats held by Republicans and four urban and largely suburban seats in Democrats’ hands. The state barely <a href="https://www.startribune.com/minnesota-won-t-lose-eighth-congressional-seat-census-bureau-rules/600050299/">hung on to all eight Congressional seats</a> after the latest population count, but population exploded in suburban communities and declined in rural areas over the last decade, meaning some districts will likely look a lot different under the new maps. </p>
 
 <CMap/>
+
+<p>With Democrats narrowly in control of the U.S. House and Senate, the redistricting process around the country is being closely watched ahead of this fall’s midterm elections. In 2020, <a href="https://www.startribune.com/minnesota-u-s-rep-angie-craig-wins-in-second-district-over-gop-challenger-tyler-kistner/572969752/">Minnesota’s closest House race</a> was in the second Congressional district that includes southern Twin Cities suburbs and the counties of Wabasha and Goodhue. Democratic Rep. Angie Craig won the district by about 2 percentage points and is <a href="https://www.startribune.com/u-s-rep-angie-craig-faces-midterm-headwinds/600138573/">already being targeted by the House GOP’s campaign arm</a> as a possible pickup opportunity for the right this year.</p>
+
+<p>The 2020 contest was also a close one for southern Minnesota’s first Congressional seat held by Republican Rep. Jim Hagedorn. While Hagedorn won by around 3 percentage points, the seat could be in play for both Democrats and Republicans in future years depending on the shape of Tuesday’s lines.</p>
 
 <div class="jump back"><a href="#top">Back to top</a></div>
 
@@ -49,3 +53,5 @@ import LMap from './LMap.svelte';
 <LMap/>
 
 <div class="jump back"><a href="#top">Back to top</a></div>
+
+<p><em>Data editor MaryJo Webster contributed to this report.</em></p>

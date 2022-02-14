@@ -378,6 +378,7 @@ jq("#senSwitch").change(function() {
 
 /********** MOBILE ZOOM ADJUSTMENTS **********/
 jq(document).ready(function() {
+  var cachedWidth = jq(window).width();
   if ((jq("#map").width() < 520)) {
       center = mcenter;
       map3.flyTo({
@@ -386,6 +387,9 @@ jq(document).ready(function() {
       });
   }
   jq(window).resize(function() {
+    var newWidth = jq(window).width();
+    if(newWidth !== cachedWidth){
+      cachedWidth = newWidth;
       if ((jq("#map").width() < 520)){
           center = mcenter;
           map3.flyTo({
@@ -399,6 +403,7 @@ jq(document).ready(function() {
               zoom: zoom
           });
       }
+    }
   });
 });
 }
