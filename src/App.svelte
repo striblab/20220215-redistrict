@@ -17,7 +17,7 @@ Change">courts have taken over the process this year</a> — as they have for th
 <h3 id="top">Jump to districts</h3>
 <div class="jump"><a href="#congress">U.S. Congress</a> | <a href="#senate">Minnesota Senate</a> | <a href="#house">Minnesota House</a></div>
 
-<h3>Notes</h3>
+
 <div class="notes">
 <ul>
 <li>The maps below can display either the previous district borders or the newly redistricted boundaries with the click of a switch.</li>

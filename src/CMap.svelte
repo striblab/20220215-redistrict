@@ -308,8 +308,8 @@ map.on('load', function() {
         map.setPaintProperty('con12-l', 'line-width', ['interpolate',['exponential', 0.5], ['zoom'],5,0.5,13,1.5]);
         map.setPaintProperty('con22-l', 'line-width', ['interpolate',['exponential', 0.5], ['zoom'],5,0.5,13,1.5]);
 
-        map.setLayoutProperty('con22', 'visibility', 'none');
-        map.setLayoutProperty('con22-l', 'visibility', 'none');
+        map.setLayoutProperty('con12', 'visibility', 'none');
+        map.setLayoutProperty('con12-l', 'visibility', 'none');
 
 /********** TOOLTIP AND HOVER EFFECTS **********/
     let hoveredStateId = null;
@@ -427,7 +427,7 @@ jq(document).ready(function() {
       <div class="toggle">
         <span class="tlabel">&larr; OLD</span> 
         <label class="switch">
-          <input id="conSwitch" type="checkbox">
+          <input id="conSwitch" type="checkbox" checked>
           <span class="slider"></span>
         </label>
         <span class="tlabel">NEW &rarr;</span>

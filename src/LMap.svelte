@@ -307,8 +307,8 @@ map2.on('load', function() {
         map2.setPaintProperty('leg12-l', 'line-width', ['interpolate',['exponential', 0.5], ['zoom'],5,0.5,13,1.5]);
         map2.setPaintProperty('leg22-l', 'line-width', ['interpolate',['exponential', 0.5], ['zoom'],5,0.5,13,1.5]);
 
-        map2.setLayoutProperty('leg22', 'visibility', 'none');
-        map2.setLayoutProperty('leg22-l', 'visibility', 'none');
+        map2.setLayoutProperty('leg12', 'visibility', 'none');
+        map2.setLayoutProperty('leg12-l', 'visibility', 'none');
 
 /********** TOOLTIP AND HOVER EFFECTS **********/
         let hoveredStateId = null;
@@ -417,7 +417,7 @@ jq("#legSwitch").change(function() {
       <div class="toggle">
         <span class="tlabel">&larr; OLD</span> 
         <label class="switch">
-          <input id="legSwitch" type="checkbox">
+          <input id="legSwitch" type="checkbox" checked>
           <span class="slider"></span>
         </label>
         <span class="tlabel">NEW &rarr;</span>

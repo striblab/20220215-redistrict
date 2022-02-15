@@ -310,8 +310,8 @@ map3.on('load', function() {
         map3.setPaintProperty('sen12-l', 'line-width', ['interpolate',['exponential', 0.5], ['zoom'],5,0.5,13,1.5]);
         map3.setPaintProperty('sen22-l', 'line-width', ['interpolate',['exponential', 0.5], ['zoom'],5,0.5,13,1.5]);
 
-        map3.setLayoutProperty('sen22', 'visibility', 'none');
-        map3.setLayoutProperty('sen22-l', 'visibility', 'none');
+        map3.setLayoutProperty('sen12', 'visibility', 'none');
+        map3.setLayoutProperty('sen12-l', 'visibility', 'none');
 
 /********** TOOLTIP AND HOVER EFFECTS **********/
         let hoveredStateId = null;
@@ -422,7 +422,7 @@ jq(document).ready(function() {
       <div class="toggle">
         <span class="tlabel">&larr; OLD</span> 
         <label class="switch">
-          <input id="senSwitch" type="checkbox">
+          <input id="senSwitch" type="checkbox" checked>
           <span class="slider"></span>
         </label>
         <span class="tlabel">NEW &rarr;</span>
