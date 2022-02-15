@@ -211,19 +211,30 @@ div.article-byline-mod {
 	line-height: 12px;
 	margin-top: 12px;
 }
-h3 {
+h3, h2 {
 	text-align:center;
+	font-family: "Benton Sans",Helvetica,Arial,sans-serif !important;
+}
+h2 {
+	font-size:30px !important;
+}
+h3 {
+	font-size:20px !important;
 }
 .notes {
-	font-family: "Benton Sans",Helvetica,Arial,sans-serif;
+	font-family: "Benton Sans",Helvetica,Arial,sans-serif !important;
 	line-height:140%;
 	margin-right:auto;
 	margin-left:auto;
 	max-width:520px;
 }
+.notes p {
+	font-family: "Benton Sans",Helvetica,Arial,sans-serif !important;
+}
 .jump {
 	text-align:center;
 	margin:10px;
+	font-family: "Benton Sans",Helvetica,Arial,sans-serif !important;
 }
 .back {
 	font-size:13px !important;
