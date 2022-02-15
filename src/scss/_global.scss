@@ -14,14 +14,14 @@ body {
 	padding: 0;
 	box-sizing: border-box;
 }
-a {
+#proj-container a {
 	color: rgb(0,100,200) !important;;
 	text-decoration: none;
 }
-a:hover {
+#proj-container a:hover {
 	text-decoration: underline;
 }
-a:visited {
+#proj-container a:visited {
 	color: rgb(0,100,200) !important;
 }
 h2 {
@@ -230,7 +230,4 @@ h3 {
 }
 .back a {
 	text-decoration:underline;
-}
-a {
-	color: rgb(0,100,200) !important;
 }

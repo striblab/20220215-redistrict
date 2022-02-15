@@ -96,7 +96,7 @@ class HomeReset {
   _createButton(className) {
     const el = window.document.createElement('button')
     el.className = className;
-    el.innerHTML = '<img width="15" src="./img/mn.png" alt="mn" />';
+    el.innerHTML = '<img width="15" src="https://static.startribune.com/news/projects/all/20220215-redistrict/build/img/mn.png" alt="mn" />';
     el.addEventListener('click',(e)=>{
      // e.style.display = 'none'
      // e.stopPropagation()
@@ -354,6 +354,7 @@ map2.on('load', function() {
 
 /********** MOBILE ZOOM ADJUSTMENTS **********/
 jq(document).ready(function() {
+  map2.resize();
   var cachedWidth = jq(window).width();
   if ((jq("#map").width() < 520)) {
       center = mcenter;
