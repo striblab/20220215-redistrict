@@ -14,8 +14,8 @@ Change">courts have taken over the process this year</a> — as they have for th
 <p>The stakes are high for communities and voters navigating their new district lines, as well as for the state’s political parties, with redrawn boundaries scrambling election dynamics in districts for Congress and the state Legislature. Every legislative seat is up for re-election in a redistricting year, meaning control of state government is at stake in the fall election. </p>
 
 <div class="rule"></div>
-<!-- <h3 id="top">Jump to districts</h3>
-<div class="jump"><a href="#congress">U.S. Congress</a> | <a href="#senate">Minnesota Senate</a> | <a href="#house">Minnesota House</a></div> -->
+<h3 id="top">Jump to districts</h3>
+<div class="jump"><a href="#congress">U.S. Congress</a> | <a href="#senate">Minnesota Senate</a> | <a href="#house">Minnesota House</a></div>
 
 
 <div class="notes">
@@ -30,7 +30,7 @@ Change">courts have taken over the process this year</a> — as they have for th
 
 <CMap/>
 
-<!-- <div class="jump back"><a href="#top">Back to top</a></div> -->
+<div class="jump back"><a href="#top">Back to top</a></div>
 
 <p>With Democrats narrowly in control of the U.S. House and Senate, the redistricting process around the country is being closely watched ahead of this fall’s midterm elections. In 2020, <a href="https://www.startribune.com/minnesota-u-s-rep-angie-craig-wins-in-second-district-over-gop-challenger-tyler-kistner/572969752/">Minnesota’s closest House race</a> was in the Second Congressional District that included southern Twin Cities suburbs and the counties of Wabasha and Goodhue. Democratic Rep. Angie Craig won the district by about 2 percentage points and is <a href="https://www.startribune.com/u-s-rep-angie-craig-faces-midterm-headwinds/600138573/">already being targeted by the House GOP’s campaign arm</a> as a possible pickup opportunity for the right this year.</p>
 
@@ -46,7 +46,7 @@ Change">courts have taken over the process this year</a> — as they have for th
 
 <SMap/>
 
-<!-- <div class="jump back"><a href="#top">Back to top</a></div> -->
+<div class="jump back"><a href="#top">Back to top</a></div>
 
 <div class="rule"></div>
 <h2 class="chartTitle" id="house">State House boundaries</h2>
@@ -54,6 +54,6 @@ Change">courts have taken over the process this year</a> — as they have for th
 
 <LMap/>
 
-<!-- <div class="jump back"><a href="#top">Back to top</a></div> -->
+<div class="jump back"><a href="#top">Back to top</a></div>
 
 <p>The party in power has swung back-and-forth over the years, and Republicans are hopeful they can take back control of the House with a favorable political climate heading into the 2022 midterm election. The most population growth, however, was in DFL-leaning suburbs and Twin Cities, meaning redrawn district boundaries could create new opportunities for the party.</p>
