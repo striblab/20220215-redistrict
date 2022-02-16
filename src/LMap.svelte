@@ -179,6 +179,11 @@ jq('#mapL .metroreset').on('click', function(){
 /********** ADD MAP LAYERS **********/
 map2.on('load', function() {
 
+  map2.setPaintProperty(
+    'water',
+    'fill-color','#ededed' 
+  );
+
       map2.addSource('precincts', {
         type: 'geojson',
         data: precincts

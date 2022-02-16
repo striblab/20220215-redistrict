@@ -180,6 +180,11 @@ jq('#map .metroreset').on('click', function(){
 /********** ADD MAP LAYERS **********/
 map.on('load', function() {
 
+  map.setPaintProperty(
+    'water',
+    'fill-color','#ededed' 
+  );
+
       map.addSource('precincts', {
         type: 'geojson',
         data: precincts
