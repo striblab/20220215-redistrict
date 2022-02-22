@@ -1,0 +1,452 @@
+---
+title: "Redistricting 2022"
+output: html_notebook
+---
+
+```{r}
+
+#NOTES: 
+# this is code to process the block equivalency files that are released as part of the redistricting process every 10 years (next one will be in 2032) and then do some of the analysis comparing old and new districts
+
+#the code brings in precinct level presidential voting results from the previous election; this will need to be updated for use in 2032
+
+# it brings in population data from the previous census; this will need to be updated for use in 2032
+
+#Some of the work needed to be done in GIS software in 2022 because I couldn't get R to dissolve the block groups into the new districts (had to do that in ArcMap) and then there's also some spatial joining that needed to be done and that also proved much easier in ArcMap (could also be done in QGIS)
+
+#There's a spot partway down the code where it provides advice about what needs to be done in a GIS program (or perhaps by 2032 we can figure out how to make it work all in R and add code to this)
+
+
+
+
+
+
+
+library(tidyverse)
+library(sf)
+options(scipen=999)# prevents display of scientific notation
+library(tidycensus)
+library(readxl)
+
+census_api_key(Sys.getenv("CENSUS_API_KEY"))
+
+```
+
+
+# Convert equivalency files
+
+```{r}
+
+#download: https://www.mncourts.gov/2021RedistrictingPanel
+#set these variables to the path and names of the equivalency files
+
+cg_equiv_file <-  './equiv_files/Block-Equivalency-Congress.xlsx'
+
+leg_equiv_file <-  './equiv_files/Block-Equivalency-House.xlsx'
+
+sen_equiv_file <-  './equiv_files/Block-Equivalency-Senate.xlsx'
+
+
+#https://www.census.gov/cgi-bin/geo/shapefiles/index.php
+#download appropriate block shapefile and save to the TIGER folder (no need to unzip)
+
+
+#uncomment the next line for the first time you run this
+#unzip('./TIGER/tl_2020_27_tabblock20.zip', exdir='./TIGER')
+
+
+#import TIGER block file for MN, 2020
+blocks  <-  "./TIGER/tl_2020_27_tabblock20.shp"
+blocks_sf <- st_read(blocks)
+
+
+
+#Get census data at the block level to estimate population in the new Congressional Districts
+
+#find the variables that are available by uncommenting the next line and running
+#census_variables <- load_variables(2020, "pl", cache = TRUE)
+
+#variable to get total population
+vars = c(pop = "P2_001N")
+
+#make the API call - choose the geography and output and year
+block_census <-  get_decennial(geography = "block", state="MN", variables = vars, year = "2020", output="tidy")
+
+
+#join the census data to the block shapefile
+blocks_sf <-  inner_join(blocks_sf, block_census %>% select(GEOID, value), by=c("GEOID20"="GEOID"))
+
+
+
+
+
+#IMPORT BLOCK EQUIVALENCY FILES
+cg_equiv <-  read_xlsx(cg_equiv_file) %>% rename(blk = Block, dist = DistrictID) #Congressional
+hs_equiv <- read_xlsx(leg_equiv_file) %>% rename(blk = Block, dist = DistrictID)  #state house
+sen_equiv <- read_xlsx(sen_equiv_file) %>% rename(blk = Block, dist = DistrictID) #state senate
+
+
+#JOINING TO BLOCK SHAPEFILE
+blocks_cg <-  left_join(blocks_sf, cg_equiv, by=c("GEOID20"="blk"))
+blocks_hs <-  left_join(blocks_sf, hs_equiv %>% select(blk, dist), by=c("GEOID20"="blk"))
+blocks_sen <-  left_join(blocks_sf, sen_equiv %>% select(blk, dist), by=c("GEOID20"="blk"))
+
+
+
+
+
+
+
+```
+
+
+
+# Add political vote data to existing districts
+
+```{r}
+
+#CURRENT shapefiles
+#https://www.gis.lcc.mn.gov/html/download.html
+
+
+#bring in current congressional district shapefile
+current_cg_file <-  "./shapefiles/C2012/c2012.shp"
+current_cg_sf <- st_read(current_cg_file)
+
+
+
+#bring in current senate district shapefile
+current_sen_file <-  "./shapefiles/S2012/S2012.shp"
+current_sen_sf <- st_read(current_sen_file)
+
+
+#bring in current house district shapefile
+current_hs_file <-  "./shapefiles/L2012/L2012-1.shp"
+current_hs_sf <- st_read(current_hs_file)
+
+
+
+
+
+#last presidential election data by precinct
+#downloadable files are here: https://electionresults.sos.state.mn.us/Select/MediaFiles/Index?ersElectionId=136
+
+
+url <-  'https://electionresultsfiles.sos.state.mn.us/20201103/USPresPct.txt'
+
+prez_precincts <-  read_delim(url, delim=";", col_names=FALSE, col_types=cols(X6="c", X9="c", X10="c")) %>% rename(state=X1, countyid=X2, precinctnum=X3, officeid=X4, officename=X5, district=X6, candidateid=X7, candidatename=X8, suffix=X9, incumbentcode=X10, partyid=X11, precincts_reporting=X12, total_precincts=X13, candidate_votes=X14, pct_votes=X15, total_votes_office=X16)
+
+
+precinct_lkup_url <-  'https://electionresultsfiles.sos.state.mn.us/20201103/PrctTbl.txt'
+
+precinct_lkup <-  read_delim(precinct_lkup_url, delim=";", col_types=cols(.default = "c"), col_names = FALSE) %>%
+  rename(countyid=X1, precinctid=X2, precinct_name=X3, cg=X4, leg=X5, cc_dist = X6, jud_dist=X7, soil_dist=X8, mcd_fips = X9, school_dist = X10)
+
+#add leading zero to districts 1-9
+precinct_lkup <-  precinct_lkup %>% mutate(leg_new = case_when(str_length(leg)==2~ paste("0", leg, sep=""), 
+                                                               str_length(leg)==3~ leg))
+
+
+
+	#County ID
+	#Precinct ID 
+	#Precinct Name
+	#Congressional District 
+	#Legislative District 
+	#County Commissioner District 
+	#Judicial District 
+	#Soil and Water Conservation District 
+	#MCD FIPS code
+	#School District number (not used in statewide elections)
+
+
+#join precinct election results with lkup table to get district codes
+
+#create a senate district number (by stripping from the legislative district number) and collapse the parties into R, D and other
+
+prez_precincts <-  left_join(prez_precincts, precinct_lkup %>% select(countyid, precinct_name, precinctid, cg, leg_new), by=c("countyid"="countyid", "precinctnum"="precinctid")) %>% mutate(sen_dist = str_sub(leg_new,1,2),
+                                                                                                                                                                                         new_party = case_when(partyid=='R' ~ 'R',
+                                                                                                                                                                                                partyid=='DFL' ~ 'D',
+                                                                                                                                                                                                TRUE ~ 'other')) %>% rename(leg=leg_new)
+
+
+
+
+#SUMMARIZE election results to CONGRESSIONAL DISTRICT
+
+cg_votes <- pivot_wider(prez_precincts %>% group_by(cg, new_party) %>% summarise(party_votes = sum(candidate_votes)), names_from="new_party", values_from="party_votes") %>% mutate(total_votes = D+other+R, pct_D = D/total_votes, pct_other= other/total_votes, pct_R = R/total_votes)
+
+
+
+#SUMMARIZE election results to LEGISLATIVE DISTRICT
+leg_votes <- pivot_wider(prez_precincts %>% group_by(leg, new_party) %>% summarise(party_votes = sum(candidate_votes)), names_from="new_party", values_from="party_votes") %>% mutate(total_votes = D+other+R, pct_D = D/total_votes, pct_other= other/total_votes, pct_R = R/total_votes)
+
+
+
+#SUMMARIZE election results to SENATE DISTRICT
+
+sen_votes <- pivot_wider(prez_precincts %>% group_by(sen_dist, new_party) %>% summarise(party_votes = sum(candidate_votes)), names_from="new_party", values_from="party_votes") %>% mutate(total_votes = D+other+R, pct_D = D/total_votes, pct_other= other/total_votes, pct_R = R/total_votes)
+
+
+
+#JOIN cg_votes with CURRENT CONGRESSIONAL SHAPEFILE
+
+
+current_cg_sf <-  left_join(current_cg_sf, cg_votes, by=c("DISTRICT"="cg"))
+
+#st_write(current_cg_sf, "./output/current_cg_sf.shp")
+
+
+
+#JOIN leg_votes with CURRENT LEGISLATIVE SHAPEFILE
+
+current_hs_sf <-  left_join(current_hs_sf, leg_votes, by=c("DISTRICT"="leg"))
+
+#st_write(current_hs_sf, "./output/current_hs_sf.shp")
+
+
+#JOIN sen_votes with CURRENT SENATE SHAPEFILE
+
+current_sen_sf <-  left_join(current_sen_sf, sen_votes, by=c("DISTRICT"="sen_dist"))
+
+#st_write(current_sen_sf, "./output/current_sen_sf.shp")
+
+```
+
+
+# Convert precinct results to centroids to merge with new districts
+```{r}
+precinct_shapefile <-  st_read('./shapefiles/mn_vtd.shp')
+
+
+precinct_votes <- pivot_wider(prez_precincts %>% group_by(countyid, precinctnum, precinct_name, new_party) %>% summarise(party_votes = sum(candidate_votes)), names_from="new_party", values_from="party_votes") %>%
+  mutate(total_votes = D+other+R,
+         pct_D = D/total_votes, 
+         pct_other= other/total_votes, 
+         pct_R = R/total_votes, 
+         geoid=paste(countyid, precinctnum, sep=""))
+
+
+#add vote results
+precinct_shapefile <-  left_join(precinct_shapefile, precinct_votes, by=c("id"="geoid"))
+
+
+#need to include this little snippet below in order for the centroid file to be created correctly
+sf::sf_use_s2(FALSE)
+
+precinct_roids <-  st_centroid(precinct_shapefile)
+
+
+
+#export centroids of precinct voting results
+st_write(precinct_roids, './output/precinct_roids.shp')
+
+```
+
+
+
+# Dissolve and spatial join
+
+```{r}
+#Export shapefiles to do additional work in a GIS program
+
+#export block equivalency shapefiles
+#these won't work if existing files are already in this directory
+st_write(blocks_cg, "./output/blocks_cg.shp")
+st_write(blocks_hs, "./output/blocks_hs.shp")
+st_write(blocks_sen, "./output/blocks_sen.shp")
+
+
+
+
+#open those shapefiles in a GIS program and run DISSOLVE to create 3 new shapefiles. 
+
+
+#Save the resulting files as 'cg_new_dis.shp' and 'hs_new_dis.shp' and 'sen_new_dis.shp' and save to new_shapefiles folder
+
+
+
+#then do spatial joins of each one with the precinct_roids shapefile
+# save those files to analysis folder
+# new_cg_votes.shp, new_hs_votes.shp, new_sen_votes.shp
+
+
+# then return to R and continue with the script below
+
+```
+
+
+
+
+# compare political lean of Congressional Districts - new versus old
+
+```{r}
+
+#bring in the new shapefile created in GIS of the new Congressional districts
+new_cg_votes <-  st_read('./analysis/new_cg_votes.shp')
+
+# make a dataframe table with the last presidential election voting results for the new districts
+new_cg_votes_tbl <- new_cg_votes %>% select(dist, Sum_D, Sum_other, Sum_R) %>% st_drop_geometry() %>% mutate(pctD = Sum_D/(Sum_D+Sum_other+Sum_R), pctR = Sum_R/(Sum_D+Sum_other+Sum_R))
+
+# make a dataframe table with the last presidential election voting results for the old district boundaries
+old_cg_votes_tbl <-  current_cg_sf %>% select(DISTRICT, pct_D, pct_other, pct_R) %>% st_drop_geometry() %>% rename(pctD_old=pct_D, pctR_old = pct_R)
+
+
+#compare the old voting results to the new voting results (this is shapefile)
+cg_vote_compare <-  inner_join(old_cg_votes_tbl %>% select(DISTRICT, pctD_old, pctR_old), new_cg_votes_tbl %>% select(dist, pctD, pctR), by=c("DISTRICT"="dist"))
+
+#export that comparison shapefile to create graphics
+write.csv(cg_vote_compare, './analysis/cg_vote_compare.csv', row.names = FALSE)
+
+```
+
+
+# Compare political lean of House districts - new versus old
+
+```{r}
+new_hs_votes <-  st_read('./analysis/new_hs_votes.shp')
+
+#need to  run chunk that joins precinct data to current_hs_sf (above)
+
+
+new_hs_votes_tbl <- new_hs_votes %>% select(dist, Sum_D, Sum_other, Sum_R) %>% st_drop_geometry() %>% mutate(pctD = Sum_D/(Sum_D+Sum_other+Sum_R), pctR = Sum_R/(Sum_D+Sum_other+Sum_R))
+
+
+old_hs_votes_tbl <-  current_hs_sf %>% select(DISTRICT, pct_D, pct_other, pct_R) %>% st_drop_geometry() %>% rename(pctD_old=pct_D, pctR_old = pct_R)
+
+hs_vote_compare <-  inner_join(old_hs_votes_tbl %>% select(DISTRICT, pctD_old, pctR_old), new_hs_votes_tbl %>% select(dist, pctD, pctR), by=c("DISTRICT"="dist"))
+
+#write.csv(hs_vote_compare, './analysis/hs_vote_compare.csv', row.names = FALSE)
+
+
+
+#this creates categories that we used for this story: 
+#https://www.startribune.com/suburbs-remain-legislative-battleground-under-new-minnesota-political-maps/600148648/?refresh=true
+#it identifies districts where the political lean has shifted in a way that it's a much tighter margin between Republican and Democratic votes for president (i.e. these are "new battlegrounds")
+#important to note that this is comparing old boundaries to new boundaries, not necessarily the same geographic space
+
+new_hs_votes <-  inner_join(new_hs_votes %>% select(OBJECTID, dist, Sum_D, Sum_other, Sum_R), old_hs_votes_tbl, by=c("dist"="DISTRICT")) %>%
+  mutate(pct_d_new = Sum_D/(Sum_D+Sum_other+Sum_R), 
+         pct_r_new = Sum_R/(Sum_D+Sum_other+Sum_R), 
+         diff_D = pct_d_new-pctD_old,
+         gap_old = case_when(pctD_old>pctR_old ~ pctD_old-pctR_old,
+                             TRUE ~ pctR_old-pctD_old),
+         gap_new = case_when(pct_d_new>pct_r_new ~ pct_d_new-pct_r_new,
+                             TRUE ~ pct_r_new-pct_d_new),
+         gap_diff = case_when(gap_old>gap_new ~ gap_old-gap_new,
+                              TRUE ~ gap_new-gap_old),
+         category = case_when(gap_new<.1 & gap_diff<.1 ~ 'existing battleground',
+           gap_new<.1 & gap_new<gap_old ~ 'tighter margin-new battleground',
+                              
+                              gap_diff<.05 & gap_new>.1 ~ 'unchanged',
+                              gap_new>=.1 & gap_new>gap_old & gap_diff>.05 ~ 'wider margin',
+                              gap_new>=.1 & gap_old>gap_new & gap_diff>=.05 ~'tigter margin',
+                              TRUE ~ 'unk'))
+
+
+st_write(new_hs_votes, "./analysis/compare_hs_votes.shp")
+
+
+new_hs_votes_csv <-  new_hs_votes %>% select(dist, pctD_old, pctR_old, pct_d_new, pct_r_new,  gap_old, gap_new, gap_diff, category) %>% st_drop_geometry()
+
+write.csv(new_hs_votes_csv, './output/new_hs_votes_csv.csv', row.names=FALSE)
+
+```
+
+
+# compare political lean of Senate districts -- new versus old
+```{r}
+new_sen_votes <-  st_read('./analysis/new_sen_votes.shp')
+
+
+
+new_sen_votes_tbl <- new_sen_votes %>% select(dist, Sum_D, Sum_other, Sum_R) %>% st_drop_geometry() %>% mutate(pctD = Sum_D/(Sum_D+Sum_other+Sum_R), pctR = Sum_R/(Sum_D+Sum_other+Sum_R))
+
+
+old_sen_votes_tbl <-  current_sen_sf %>% select(DISTRICT, pct_D, pct_other, pct_R) %>% st_drop_geometry() %>% rename(pctD_old=pct_D, pctR_old = pct_R)
+
+sen_vote_compare <-  inner_join(old_sen_votes_tbl %>% select(DISTRICT, pctD_old, pctR_old), new_sen_votes_tbl %>% select(dist, pctD, pctR), by=c("DISTRICT"="dist"))
+
+#write.csv(sen_vote_compare, './analysis/sen_vote_compare.csv', row.names = FALSE)
+
+
+
+new_sen_votes <-  inner_join(new_sen_votes %>% select(OBJECTID, dist, Sum_D, Sum_other, Sum_R), 
+                             old_sen_votes_tbl, by=c("dist"="DISTRICT")) %>%
+  mutate(pct_d_new = Sum_D/(Sum_D+Sum_other+Sum_R), 
+         pct_r_new = Sum_R/(Sum_D+Sum_other+Sum_R), 
+         diff_D = pct_d_new-pctD_old,
+         gap_old = case_when(pctD_old>pctR_old ~ pctD_old-pctR_old,
+                             TRUE ~ pctR_old-pctD_old),
+         gap_new = case_when(pct_d_new>pct_r_new ~ pct_d_new-pct_r_new,
+                             TRUE ~ pct_r_new-pct_d_new),
+         gap_diff = case_when(gap_old>gap_new ~ gap_old-gap_new,
+                              TRUE ~ gap_new-gap_old),
+         category = case_when(gap_new<.1 & gap_diff<.1 ~ 'existing battleground',
+           gap_new<.1 & gap_new<gap_old ~ 'tighter margin-new battleground',
+                              
+                              gap_diff<.05 & gap_new>.1 ~ 'unchanged',
+                              gap_new>=.1 & gap_new>gap_old & gap_diff>.05 ~ 'wider margin',
+                              gap_new>=.1 & gap_old>gap_new & gap_diff>=.05 ~'tigter margin',
+                              TRUE ~ 'unk'))
+
+
+
+new_sen_votes_csv <-  new_sen_votes %>% select(dist, pctD_old, pctR_old, pct_d_new, pct_r_new,  gap_old, gap_new, gap_diff, category) %>% st_drop_geometry()
+
+#write.csv(new_sen_votes_csv, './output/new_sen_votes_csv.csv', row.names=FALSE)
+
+
+st_write(new_sen_votes, "./analysis/compare_sen_votes.shp")
+```
+
+
+
+# Get block group Census race/ethnicity data
+```{r}
+#variables to retrieve
+race_vars <-  c(totpop ="P2_001N",
+                hispanic = "P2_002N",
+                whitenh = "P2_005N",
+                blacknh = "P2_006N",
+                amindnh = "P2_007N",
+                asiannh = "P2_008N",
+                pacislnh = "P2_009N",
+                othernh ="P2_010N",
+                tworacenh = "P2_011N")
+
+
+
+#make the API call - choose the geography and output
+bg_race_2020<-  get_decennial(geography = "block group", state="MN", variables = race_vars, year = "2020", output="wide", geometry = TRUE)
+
+bg_race_2020 <-  bg_race_2020 %>% clean_names() %>% mutate(pctwhite = whitenh/totpop,
+                                                           pcthispanic = hispanic/totpop,
+                                                           pctblack = blacknh/totpop,
+                                                           pctami = amindnh/totpop,
+                                                           pctasian = asiannh/totpop,
+                                                           pct_two = tworacenh/totpop,
+                                                           pct_other= (pacislnh+othernh)/totpop)
+
+bg_race_2020 <- bg_race_2020 %>% mutate(maxvalue = pmax(bg_race_2020$pctwhite,
+                                                        bg_race_2020$pcthispanic,
+                                                        bg_race_2020$pctblack,
+                                                        bg_race_2020$pctami,
+                                                        bg_race_2020$pctasian,
+                                                        bg_race_2020$pct_two,
+                                                        bg_race_2020$pct_other),
+                                        largest_group = case_when(maxvalue==pctwhite ~ 'White',
+                                                                  maxvalue==pcthispanic ~ 'Hispanic',
+                                                                  maxvalue==pctblack ~ 'Black',
+                                                                  maxvalue==pctami ~ 'American Indian',
+                                                                  maxvalue==pctasian ~ 'Asian',
+                                                                  maxvalue==pct_two ~ 'Two or more',
+                                                                  maxvalue==pct_other ~ 'Other',
+                                                                  TRUE ~ 'tie'))
+
+
+st_write(bg_race_2020, "./output/bg_race_2020.shp")
+```
+
+
+
