@@ -1,5 +1,7 @@
 # Minnesota redistricting maps
 
+[See R code for boiling up redistricting maps from the state's block equivalency files](https://github.com/striblab/20220215-redistrict/blob/master/src/data/process_redistricting.Rmd).
+
 This is a project template for [Svelte](https://svelte.dev) apps. It lives at https://github.com/striblab/svelte3-template-webpack and is a fork of https://github.com/sveltejs/template-webpack.
 
 To create a new project based on this template using [degit](https://github.com/Rich-Harris/degit):
